@@ -1,0 +1,103 @@
+import pygame
+import random
+
+Initialize Pygame
+pygame.init()
+
+Set up some constants
+WIDTH, HEIGHT = 800, 600
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+
+Set up the display
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+Set up the font
+font = pygame.font.Font(None, 36)
+
+Set up the clock
+clock = pygame.time.Clock()
+
+Set up the player and enemy
+player_x, player_y = WIDTH // 2, HEIGHT // 2
+enemy_x, enemy_y = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+
+Set up the player's stats
+player_health = 100
+player_damage = 10
+player_special_power = None
+
+Set up the enemy's stats
+enemy_health = 50
+enemy_damage = 5
+
+Set up the special powers
+special_powers = {
+    "fireball": {"damage": 20, "code": "FIREBALL"},
+    "lightning": {"damage": 30, "code": "LIGHTNING"},
+    "healing": {"healing": 20, "code": "HEALING"}
+}
+
+Set up the game loop
+running = True
+while running:
+    # Event handling
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Check if the player clicked on the enemy
+            if (enemy_x - 20) < event.pos[0] < (enemy_x + 20) and (enemy_y - 20) < event.pos[1] < (enemy_y + 20):
+                # Deal damage to the enemy
+                enemy_health -= player_damage
+                if enemy_health <= 0:
+                    # Enemy defeated, reset enemy health and position
+                    enemy_health = 50
+                    enemy_x, enemy_y = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+        elif event.type == pygame.KEYDOWN:
+            # Check if the player entered a special power code
+            if event.unicode.isalpha():
+                code = event.unicode.upper()
+                if code in special_powers:
+                    # Unlock the special power
+                    player_special_power = special_powers[code]
+                    print(f"Special power unlocked: {player_special_power['code']}")
+
+    # Game logic
+    # Move the player to the mouse position
+    player_x, player_y = pygame.mouse.get_pos()
+
+    # Check if the player has a special power
+    if player_special_power:
+        # Use the special power
+        if player_special_power["code"] == "FIREBALL":
+            enemy_health -= player_special_power["damage"]
+        elif player_special_power["code"] == "LIGHTNING":
+            enemy_health -= player_special_power["damage"]
+        elif player_special_power["code"] == "HEALING":
+            player_health += player_special_power["healing"]
+        # Reset the special power
+        player_special_power = None
+
+    # Draw everything
+    screen.fill(WHITE)
+    pygame.draw.rect(screen, RED, (player_x - 10, player_y - 10, 20, 20))
+    pygame.draw.rect(screen, BLUE, (enemy_x - 10, enemy_y - 10, 20, 20))
+    text = font.render(f"Player Health: {player_health}", True, BLACK)
+    screen.blit(text, (10, 10))
+    text = font.render(f"Enemy Health: {enemy_health}", True, BLACK)
+    screen.blit(text, (10, 50))
+    text = font.render(f"Special Power: {player_special_power['code'] if player_special_power else 'None'}", True, BLACK)
+    screen.blit(text, (10, 90))
+
+    # Flip the display
+    pygame.display.flip()
+
+    # Cap the frame rate
+    clock.tick(60)
+
+Quit Pygame
+pygame.quit()
+```
